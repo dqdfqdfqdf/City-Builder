@@ -1,56 +1,63 @@
 let GameState = 0;
 let scl = 50, extension = 5, day_in_secconds = 10;
 let tiles, camera, selection, resources, gui, house_img, lmart_img;
+let firstRun = true;
 let structures = [ 
-  ["Grass",       10,   0,  68, 189, 50 ,   0, "None"       ,  0,   0, "Nothing"              , 0,  0], 
-  ["Solar Panel", 1000, 1,  58, 107, 173,  10, "Electricity",  0,   0, "Electricity Creator"  , 0,  0],
-  ["House",       250,  2, 235,  47,   6,   0, "None"       ,  5,   5, "People Container"     , 0,  5],
-  ["Battery",     100,  3,  33,  33,  33,   0, "None"       ,  0, 200, "Electricity Container", 0,  0],
-  ["Nothing",     0,    4, 255, 255, 255,   0, "None"       ,  0,   0, "Nothing"              , 0,  0],
-  ["Road",        50,   5,  33,  33,  33,   0, "None"       ,  0,   0, "Path"                 , 0,  0],
-  ["Lmart",       500,  6, 255, 255, 255, 250, "Money"      , 10,   0, "Money Creator"        , 10, 10],
-  ["Water Tower", 700,  7, 251, 197,  49,   0, "None"       ,  0, 400, "Water Container"      , 1,  0],
+  ["Grass",           10,   0,  68, 189,  50,   0, "None"       ,  0,   0, "Nothing"              ,  0,  0], 
+  ["Solar Panel",     1000, 1,  58, 107, 173,  10, "Electricity",  0,   0, "Electricity Creator"  ,  0,  0],
+  ["House",           250,  2, 235,  47,   6,   0, "None"       ,  5,   5, "People Container"     ,  0,  5],
+  ["Battery",         100,  3,  33,  33,  33,   0, "None"       ,  0, 200, "Electricity Container",  0,  0],
+  ["Road",            50,   5,  33,  33,  33,   0, "None"       ,  0,   0, "Path"                 ,  0,  0],
+  ["Lmart",           500,  6, 255, 255, 255, 250, "Money"      , 10,   0, "Money Creator"        , 15, 10],
+  ["Water Tower",     700,  7, 251, 197,  49,   0, "None"       ,  0, 400, "Water Container"      ,  0,  0],
+  ["Water Generator", 1250, 8,   0,   0,   0,  50, "Water"      , 10,   0, "Water Creator"        ,  2,  0],
+  ["Nothing",         0,    4, 255, 255, 255,   0, "None"       ,  0,   0, "Nothing"              ,  0,  0],
 ];
-// NAME, PRICE, INDEX, R, G, B, RENDEMENT, TYPE D'ENERGIE YIELDED, ENERGY_USE, MAX_CAPACITY, TYPE OF BUILDING, MIN_POPULATION TO WORK, MIN_WATER_TO_WORK
+// NAME, PRICE, INDEX, R, G, B, RENDEMENT, TYPE D'ENERGIE YIELDED, ELECRICITY USE, MAX_CAPACITY, 
+// TYPE OF BUILDING, MIN_POPULATION TO WORK, WATER USE
 function Resources() {
-  this.money = 10000; this.electricity = 10; this.frames = 0; this.population = 0; this.water = 0;
+  this.money = 10000; this.electricity = 0; this.frames = 0; this.population = 0; this.water = 10;
   this.freeWorkers = 0;
   this.do_its_thing = function() {
     this.render(); this.update();
   }
   this.render = function() {
-    stroke(0); strokeWeight(1); fill(76, 209, 55); rect(width-3*scl, 0, 3*scl, scl);
-    textAlign(CENTER); textSize(scl/2); fill(255); text("€", width-3*scl+scl/2, scl / 1.5);
-    textAlign(CENTER); textSize(scl/2); fill(255); text(this.money, width-2*scl+scl/2, scl / 1.5);
-    stroke(0); strokeWeight(1); fill(76, 209, 55); rect(0, 0, 3*scl, scl);
-    textAlign(CENTER); textSize(scl/2); fill(255); text("Elec.", scl / 2 + 10, scl / 1.5);
-    textAlign(CENTER); textSize(scl/2); fill(255); text(this.electricity, 2*scl, scl / 1.5);
+    stroke(0); strokeWeight(1); textAlign(CENTER); textSize(scl/2); 
+      fill(76, 209, 55); 
+        rect(width-3*scl, 0, 3*scl, scl);
+    fill(255); text("€", width-3*scl+scl/2, scl / 1.5);
+    fill(255); text(this.money, width-2*scl+scl/2, scl / 1.5);
+    fill(76, 209, 55); rect(0, 0, 3*scl, scl);
+    fill(255); text("Elec.", scl / 2 + 10, scl / 1.5);
+    fill(255); text(this.electricity, 2*scl, scl / 1.5);
     stroke(0); strokeWeight(1); fill(76, 209, 55); rect(3*scl, 0, 3*scl, scl);
-    textAlign(CENTER); textSize(scl/2); fill(255); text("Pop.", scl / 2 + 10 + 3*scl, scl / 1.5);
-    textAlign(CENTER); textSize(scl/2); fill(255); text(this.population, 2*scl+3*scl, scl / 1.5);
-    stroke(0); strokeWeight(1); fill(76, 209, 55); rect(6*scl, 0, 3*scl, scl);
-    textAlign(CENTER); textSize(scl/2); fill(255); text("Water", scl / 2 + 15 + 6*scl, scl / 1.5);
-    textAlign(CENTER); textSize(scl/2); fill(255); text(this.water, 2*scl+6*scl, scl / 1.5);
-    stroke(0); strokeWeight(1); fill(76, 209, 55); rect(9*scl, 0, 5*scl, scl);
+    fill(255); text("Pop.", scl / 2 + 10 + 3*scl, scl / 1.5);
+    fill(255); text(this.population, 2*scl+3*scl, scl / 1.5);
+    fill(76, 209, 55); rect(6*scl, 0, 3*scl, scl);
+    fill(255); text("Water", scl / 2 + 15 + 6*scl, scl / 1.5);
+    fill(255); text(this.water, 2*scl+6*scl, scl / 1.5);
+    fill(76, 209, 55); rect(9*scl, 0, 5*scl, scl);
     fill(255); textAlign(LEFT);
       text("Free Workers", 9*scl + 10, scl / 1.5);
       textAlign(CENTER); text(this.freeWorkers, 13*scl, scl / 1.5);
   }
   this.update = function() {
     let elec = 0, Battery_index = 3, total_electricity_usage = 0, pop = 0, pop_required = 0, water = 0;
+    let total_water_usage = 0;
     for (let i = 0; i < tiles.length; i ++) {
       elec += tiles[i].contained_energy; 
       total_electricity_usage += structures[tiles[i].i][8];
       pop += tiles[i].contained_people;
       pop_required += structures[tiles[i].i][11];
       water += tiles[i].contained_water;
+      total_water_usage += structures[tiles[i].i][12];
     }
     this.electricity = elec; this.population = pop; this.water = water; this.freeWorkers = this.population - pop_required;
-    if(this.population < pop_required) {endGame();}
     if(this.frames <= 30*day_in_secconds) {this.frames ++;} else {
       this.frames = 0; this.electricity -= total_electricity_usage;
-      total_to_be_removed = total_electricity_usage;
-      SolarPanelIndex = 1; GeneratedElectricity = 0;
+      let total_to_be_removed = total_electricity_usage;
+      let total_water_to_be_removed = total_water_usage;
+      let SolarPanelIndex = 1; GeneratedElectricity = 0; GeneratedWater = 0;
       for (let i = 0; i < tiles.length; i ++) {
         if(structures[tiles[i].i][10] === "Electricity Container") {
           electricity_able_to_remove = tiles[i].contained_energy;
@@ -58,11 +65,23 @@ function Resources() {
           if(electricity_able_to_remove >= total_to_be_removed) {
             electricity_to_remove = electricity_able_to_remove - total_to_be_removed;
             tiles[i].contained_energy -= total_to_be_removed;
-            break;
+            total_to_be_removed = 0;
           } else {
             electricity_to_remove = electricity_able_to_remove;
             tiles[i].contained_energy -= electricity_to_remove;
             total_to_be_removed -= electricity_to_remove;
+          }
+        } else if(structures[tiles[i].i][10] === "Water Container") {
+          water_able_to_remove = tiles[i].contained_water;
+          water_to_remove = 0;
+          if(water_able_to_remove >= total_water_to_be_removed) {
+            water_to_remove = water_able_to_remove - total_water_to_be_removed;
+            tiles[i].contained_water -= total_water_to_be_removed;
+            total_water_to_be_removed = 0;
+          } else {
+            water_to_remove = water_able_to_remove;
+            tiles[i].contained_water -= water_to_remove;
+            total_water_to_be_removed -= water_to_remove;
           }
         }
         if(structures[tiles[i].i][10] === "Money Creator") {
@@ -71,32 +90,45 @@ function Resources() {
         if(structures[tiles[i].i][10] === "People Container") {
           tiles[i].contained_people = structures[tiles[i].i][9];
         }
-      }
-      for (let i = 0; i < tiles.length; i ++) {
         if(structures[tiles[i].i][10] === "Electricity Creator") {
           GeneratedElectricity += structures[tiles[i].i][6];
         }
+        if(structures[tiles[i].i][10] === "Water Creator") {
+          GeneratedWater += structures[tiles[i].i][6];
+        }
       }
       EnergyLeftToBeStored = GeneratedElectricity;
+      ELTBS = GeneratedWater;
       for (let i = 0; i < tiles.length; i ++) {
         current = tiles[i].contained_energy; maximum = structures[Battery_index][9];
+        c = tiles[i].contained_water; m = structures[tiles[i].i][9];
         if (structures[tiles[i].i][10] === "Electricity Container") {
           diff = maximum-current;
           if(EnergyLeftToBeStored <= diff) {
             tiles[i].contained_energy += EnergyLeftToBeStored;
-            break;            
-          } else {tiles[i].contained_energy += diff; EnergyLeftToBeStored -= diff;print(tiles[i].contained_energy);}
+            EnergyLeftToBeStored = 0;            
+          } else {tiles[i].contained_energy += diff; EnergyLeftToBeStored -= diff;}
+        } else if(structures[tiles[i].i][10] === "Water Container") {
+          diff = m-c;
+          if(ELTBS <= diff) {
+            tiles[i].contained_water += ELTBS;
+            ELTBS = 0;
+          } else {tiles[i].contained_water += diff; ELTBS -= diff;}
         }
       }
+      if(firstRun === false) {if(this.population < pop_required || this.electricity < 0 || total_water_usage > water) {endGame();}} 
+      else {firstRun = false;}
     }
-  }}
+  }
+}
 function Selection() {
   this.xonscreen = 0, this.yonscreen = 0, this.visible = true;
   this.render = function() {
     if(this.visible == true) {
       stroke(0); strokeWeight(2); noFill(); rect(this.xonscreen, this.yonscreen, scl, scl);
     }
-  }}
+  }
+}
 function Camera() {
   this.xoffset = 0; this.yoffset = 0;
   this.getx = function(x) {return x+this.xoffset;}
@@ -117,6 +149,14 @@ function object_render(x, y, rgb, index, s, a) {
       rect(-Tsize / 2, -Tsize / 2, 2, Tsize); rect(-Tsize / 2 - 1 + Tsize / 3, -Tsize / 2, 2, Tsize); rect(-Tsize / 2 - 1 + 2*Tsize / 3, -Tsize / 2, 2, Tsize); rect(-Tsize / 2 - 2 + Tsize, -Tsize / 2, 2, Tsize);
     } else if(structures[index][2] === 2) {
       image(house_img, -Tsize / 2, -Tsize / 2, Tsize, Tsize);
+    } else if(structures[index][2] == 3) {
+      stroke(251, 197, 49); strokeWeight(2); 
+        line(-Tsize / 2,   -Tsize / 2+1, Tsize / 2,    -Tsize / 2+1);
+        line(-Tsize / 2,   Tsize / 2-1,  Tsize / 2,    Tsize / 2-1);
+        line(-Tsize / 2+1, -Tsize / 2,   -Tsize / 2+1, Tsize / 2);
+        line(Tsize / 2-1,  -Tsize / 2,   Tsize / 2-1,  Tsize / 2);
+      fill(251, 197, 49); textAlign(CENTER); textSize(scl / 1.5);
+        text("B", 0, 0 + 1/4*scl);
     } else if(structures[index][2] === 5) {
       fill(251, 197, 49); 
         rect(-Tsize / 2, -Tsize / 2, Tsize, Tsize / 4); 
@@ -131,12 +171,14 @@ function object_render(x, y, rgb, index, s, a) {
         fill(213, 221, 234); ellipse(0, 0, Tsize, Tsize);
         fill(94, 216, 249);  ellipse(0, 0, 0.8 * Tsize, 0.8 * Tsize);
     }
-  pop();}
+  pop();
+}
 function tile(x, y, index) {
   this.x = x; this.y = y; this.i = index; this.rgb = [structures[index][3], structures[index][4], structures[index][5]];
   this.angle = 0; this.contained_energy = 0; this.contained_people = 0; this.contained_water = 0;
   this.initVariables = function(index) {
     this.contained_energy = 0; this.angle = 0; this.contained_people = 0; this.contained_water = 0;
+    if(structures[index][10] === "People Container") {this.contained_people = structures[index][9];}
   }
   this.render = function() {
     object_render(this.x, this.y, this.rgb, this.i, 0, this.angle);
@@ -155,7 +197,8 @@ function delete_tile(bx, by) {
         tiles[i].modify(4);
       }
     }
-  }}
+  }
+}
 function Shop() {
   this.selected = true; this.item_waiting_to_be_placed = false; this.item_index = 0; this.yoffset = 0;
   this.render = function() {
@@ -179,6 +222,7 @@ function Shop() {
               text("Price : " + structures[i][1] + " €", tx, ty + 2 / 4 * s + 3*diff);
             tx -= 1 / 5*gui.w
               text("Required Workers : " + structures[i][11], tx, y + s / 2 - 1/4*s + diff);
+              text("Water Use : " + structures[i][12], tx, ty + 1 / 4 * s + 1*diff);
         }
         y += s;
       }
@@ -199,7 +243,8 @@ function Shop() {
         }
       }
       y += s;
-    }}
+    }
+  }
   this.place_element = function() {
     for(let i = 0; i < tiles.length; i ++) {
       let tx = tiles[i].x; let ty = tiles[i].y;
@@ -212,7 +257,9 @@ function Shop() {
           break;
         }
       }
-    }}}
+    }
+  }
+}
 function Gui() {
   this.w = width-50*2; this.h = height-50*2; this.x = 50; this.y = 50; this.open = false;
   this.shop = new Shop();
@@ -224,7 +271,8 @@ function Gui() {
   }
   this.action = function(action) {
     if(action === "m") {if(this.open == true) {this.open = false;} else {this.open = true;}}
-  }}
+  }
+}
 function setup() {
   createCanvas(1000, 500); frameRate(30);
   tiles = []; camera = new Camera(); selection = new Selection(); resources = new Resources();
@@ -232,9 +280,14 @@ function setup() {
   gui = new Gui();
   for (x = -scl*extension; x <= width+extension*scl-scl; x += scl) {
     for (y = -scl*extension; y <= height+extension*scl-scl; y += scl) {
-      tiles.push(new tile(x, y, 0));
+      let index = 0;
+      if(camera.getx(x) === 0     && camera.gety(y) === scl) {index = 2;}
+      if(camera.getx(x) === scl   && camera.gety(y) === scl) {index = 1;}
+      if(camera.getx(x) === 2*scl && camera.gety(y) === scl) {index = 3;}
+      tiles.push(new tile(x, y, index));
     }
-  }}
+  }
+}
 function draw() {
   clear(); background(0, 168, 255);
   if(GameState === 0) {
@@ -254,7 +307,21 @@ function draw() {
     selection.xonscreen = sx; selection.yonscreen = sy;
     selection.render(); resources.do_its_thing();
     gui.render();
-  }}
+  } else if(GameState === 2) {
+    cursor(HAND); textAlign(CENTER); fill(255); textSize(80); 
+      text("You've Lost", width / 2, height / 2 + 1 / 4 * 80);
+      textSize(40);
+      reason = "";
+      if(resources.population < resources.pop_required) {
+        reason = "Not All The Jobs Were filled !";
+      } else if(resources.electricity < 0) {
+        reason = "Out of Electricity !";
+      } else if(total_water_usage > water) {
+        reason = "Out Of Water !";
+      }
+      text("Reason : "+reason, width / 2, height / 2 + 1 / 4 * 80 + 50)
+  }
+}
 function mousePressed() {
   if(mouseButton === "left") {
     if(GameState === 0) {
@@ -267,7 +334,8 @@ function mousePressed() {
     }
   } else if(mouseButton === "right") {
     gui.action("m");
-  }}
+  }
+}
 function keyPressed() {
   if(GameState === 0) {
 
@@ -294,5 +362,9 @@ function keyPressed() {
       if(keyCode === UP_ARROW)    {gui.shop.scrollUp();}
       if(keyCode === DOWN_ARROW)  {gui.shop.scrollDown();}
     }
-    if(keyCode === 77)            {gui.action("m");}}
+    if(keyCode === 77)            {gui.action("m");}
   }
+}
+function endGame() {
+  GameState = 2;
+}
