@@ -8,5 +8,6 @@ I work on this game during my spare time.
 You can help me make this project by :
 + Reporting an issue
 + Submiting a poll request
++ Sending either 100x100 textures or designs
 
-Thank's for making the development of this game easier.
+Thank's for making the development of this game easier since I don't have all the time in the world.
