@@ -3,7 +3,8 @@ City Builder is going to be a fun singleplayer web based city construction game 
 # Feel Free To Give Me Feedback!
 I work on this game during my spare time.
 You can help me make this project by :
-+ Reportinh an issue
++ Reporting an issue
 + Submiting a poll request
+
 Thank's for making the development of this game easier.
 
